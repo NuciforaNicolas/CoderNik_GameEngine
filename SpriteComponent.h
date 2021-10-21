@@ -1,6 +1,8 @@
 #pragma once
 #include "Component.h"
 #include "SDL.h"
+#include "Shader.h"
+#include "Texture.h"
 
 class SpriteComponent : public Component {
 public:
@@ -9,19 +11,19 @@ public:
 	~SpriteComponent();
 
 	// draw sprite
-	virtual void Draw(SDL_Renderer* renderer);
-	virtual void SetTexture(SDL_Texture* texture);
+	virtual void Draw(Shader* shader);
+	virtual void SetTexture(Texture* texture);
 
 	int GetDrawOrder() { return mDrawOrder; }
-	int GetTextureWidth() { return mTextureWidth; }
-	int GetTextureHeight() { return mTextureHeight; }
+	int GetTextureWidth() { return mWidth; }
+	int GetTextureHeight() { return mHeight; }
 
 private:
 	// texture to draw
-	SDL_Texture* mTexture;
+	Texture* mTexture;
 	// draw order
 	int mDrawOrder;
 	// dimensions of the texture
-	int mTextureWidth, mTextureHeight;
+	int mWidth, mHeight;
 
 };

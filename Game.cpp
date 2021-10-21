@@ -1,18 +1,19 @@
-#include <vector>
 #include "Game.h"
+#include <SDL.h>
+#include <algorithm>
 #include "Actor.h"
-#include "SpriteComponent.h"
-
-#define WINWIDTH 1280
-#define WINHEIGHT 720
+#include "Asteroid.h"
+#include "Random.h"
+#include "Ship.h"
 
 Game::Game() : 
-	mWindow(nullptr),
-	mRenderer(nullptr),
 	mWinHeight(0),
 	mWinWidth(0),
 	mTicksCount(0),
-	mIsRunning(true){}
+	mIsRunning(true),
+	mUpdatingActors(false),
+	mRenderer(nullptr)
+{}
 
 void Game::SetWindowWidthHeight(int width, int height) {
 	mWinWidth = width;
@@ -21,25 +22,22 @@ void Game::SetWindowWidthHeight(int width, int height) {
 
 bool Game::Initialize() {
 	// Initialize SDL
-	int sdlResult = SDL_Init(SDL_INIT_VIDEO);
+	int sdlResult = SDL_Init(SDL_INIT_VIDEO | SDL_INIT_AUDIO);
 	if (sdlResult != 0) {
 		SDL_Log("Unable to initialize SDL: %s", SDL_GetError());
 		return false;
 	}
 
-	// Create a window
-	mWindow = SDL_CreateWindow("CoderNik Game Engine", 100, 100, mWinWidth != 0 ? mWinWidth : WINWIDTH, mWinHeight != 0 ? mWinHeight : WINHEIGHT, SDL_WINDOW_OPENGL);
-	if (!mWindow) {
-		SDL_Log("Failed to create window: %s", SDL_GetError());
-		return false;
-	}
-
-	// Initialize Renderer. Use GPU to render graphic and use VSYNC
-	mRenderer = SDL_CreateRenderer(mWindow, -1, SDL_RENDERER_ACCELERATED /*Use graphic card*/ | SDL_RENDERER_PRESENTVSYNC /*Use VSync*/);
+	mRenderer = new Renderer(this);
 	if (!mRenderer) {
-		SDL_Log("Error on creating Renderer: %s", SDL_GetError());
+		SDL_Log("Failed to create renderer: %s", SDL_GetError());
 		return false;
 	}
+	mRenderer->Initialize(mWinWidth, mWinHeight);
+
+	LoadData();
+
+	mTicksCount = SDL_GetTicks();
 
 	// Game initialization succeeds
 	return true;
@@ -47,8 +45,6 @@ bool Game::Initialize() {
 
 void Game::ShutDown() {
 	UnloadData();
-	SDL_DestroyRenderer(mRenderer);
-	SDL_DestroyWindow(mWindow);
 	SDL_Quit();
 }
 
@@ -76,9 +72,15 @@ void Game::ProcessInput() {
 	}
 
 	// Store the keyboard input by the player
-	const Uint8* state = SDL_GetKeyboardState(NULL);
+	const Uint8* keyState = SDL_GetKeyboardState(NULL);
 	// If player press Escape key, close the game
-	if (state[SDL_SCANCODE_ESCAPE]) mIsRunning = false;
+	if (keyState[SDL_SCANCODE_ESCAPE]) mIsRunning = false;
+	
+	// Pass the key pressed to all actor. If one of them have this key as input, process it
+	mUpdatingActors = true;
+	for (Actor* actor : mActors)
+		actor->ProcessInput(keyState);
+	mUpdatingActors = false;
 }
 
 void Game::UpdateGame() {
@@ -86,21 +88,27 @@ void Game::UpdateGame() {
 	while (!SDL_TICKS_PASSED(SDL_GetTicks(), mTicksCount + 16));
 	// calculate deltatime in milliseconds
 	float deltatime = (SDL_GetTicks() - mTicksCount) / 1000.0f;
-	// update tick counts
-	mTicksCount = SDL_GetTicks();
 	// clamp deltatime to fixed value
 	if (deltatime > 0.05f) deltatime = 0.05f;
 
+	// update tick counts
+	mTicksCount = SDL_GetTicks();
+
 	// update all active actors
+	mUpdatingActors = true;
 	for(auto actor : mActors){
 		actor->Update(deltatime);
 	}
+	mUpdatingActors = false;
+
 	// put pending actors in active actors
 	for (auto actor : mPendingActors) {
+		actor->ComputeWorldTransform();
 		mActors.emplace_back(actor);
 	}
 	//clear pending actor list
 	mPendingActors.clear();
+
 	// if any dead actor, put them in a temp vector and delete them
 	std::vector<Actor*> deadActors;
 	for (auto actor : mActors) {
@@ -113,25 +121,12 @@ void Game::UpdateGame() {
 }
 
 void Game::GenerateOutput() {
-	// Set the back buffer color
-	SDL_SetRenderDrawColor(
-		mRenderer,
-		255,
-		0,
-		120,
-		255
-	);
-	// Clear the back buffer
-	SDL_RenderClear(mRenderer);
-
-	// Swap back and front buffer
-	SDL_RenderPresent(mRenderer);
-
+	mRenderer->Draw();
 }
 
 void Game::AddActor(Actor* actor) {
 	// if updating actors, then add to pending actors
-	if (!mUpdatingActors)
+	if (mUpdatingActors)
 		mPendingActors.emplace_back(actor);
 	else
 		mActors.emplace_back(actor);
@@ -145,7 +140,6 @@ void Game::RemoveActor(Actor* actor) {
 		std::iter_swap(it, mPendingActors.end() - 1);
 		//pop actor from the back of the vector
 		mPendingActors.pop_back();
-		return;
 	}
 
 	// if not in pending actors, check if in active actors
@@ -153,8 +147,15 @@ void Game::RemoveActor(Actor* actor) {
 	if (it != mActors.end()) {
 		std::iter_swap(it, mActors.end() - 1);
 		mActors.pop_back();
-		return;
 	}
+}
+
+void Game::LoadData() {
+	Ship* ship = new Ship(this);
+
+	const int numAsteroids = 20;
+	for (int i = 0; i < numAsteroids; i++)
+		new Asteroid(this);
 }
 
 void Game::UnloadData() {
@@ -162,21 +163,12 @@ void Game::UnloadData() {
 	while (!mActors.empty()) delete mActors.back();
 }
 
-void Game::AddSprite(SpriteComponent* sprite) {
-	//Find an insertion point in the sorted vector
-	//The vector is already sorted befor inserting new sprite. We can use insertion sort to preseres order
-	int spriteOrder = sprite->GetDrawOrder();
-	auto iter = mSprites.begin();
-	for (; iter != mSprites.end(); iter++) {
-		if (spriteOrder < (*iter)->GetDrawOrder()) break;
-	}
-	mSprites.insert(iter, sprite);
+void Game::AddAsteroid(Asteroid* ast) {
+	mAsteroids.emplace_back(ast);
 }
 
-void Game::RemoveSprite(SpriteComponent* sprite) {
-	auto iter = std::find(mSprites.begin(), mSprites.end(), sprite);
-	if (iter != mSprites.end()) {
-		std::iter_swap(iter, mSprites.end() - 1);
-		mSprites.pop_back();
-	}
+void Game::RemoveAsteroid(Asteroid* ast) {
+	auto iter = std::find(mAsteroids.begin(), mAsteroids.end(), ast);
+	if (iter != mAsteroids.end())
+		mAsteroids.erase(iter);
 }

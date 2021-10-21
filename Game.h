@@ -1,8 +1,9 @@
 #pragma once
+#include <unordered_map>
+#include <string>
 #include <vector>
-#include "SDL.h"
-#include "GL/Glew.h"
-#include "SDL_image.h"
+#include "Math.h"
+#include "Renderer.h"
 
 class Game {
 public:
@@ -20,23 +21,26 @@ public:
 	void AddActor(class Actor* actor);
 	// remove actor from mActors. Called from Actor destructor
 	void RemoveActor(class Actor* actor);
-	// Delete all game's stuff
-	void UnloadData();
-	// add sprite
-	void AddSprite(class SpriteComponent* sprite);
-	// remove sprite
-	void RemoveSprite(SpriteComponent* sprite);
+	// Get window width and height
+	int GetWidth() const { return mWinWidth; }
+	int GetHeight() const { return mWinHeight; }
+
+	class Renderer* GetRenderer() const { return mRenderer; }
+
+	void AddAsteroid(class Asteroid* ast);
+	void RemoveAsteroid(class Asteroid* ast);
+	std::vector<class Asteroid*>& GetAsteroids() { return mAsteroids; }
 
 private:
 	// Helper function for the game loop. Main Game steps for each frame: Process Inputs, update the game world, generate any output
 	void ProcessInput();
 	void UpdateGame();
 	void GenerateOutput();
-
-	// Systet that draw graphics
-	SDL_Renderer* mRenderer;
-	// Window created by SDL
-	SDL_Window* mWindow;
+	// Load game stuff
+	void LoadData();
+	// Delete all game's stuff
+	void UnloadData();
+	
 	int mWinWidth, mWinHeight;
 	//Game should continue to run?
 	bool mIsRunning;
@@ -49,7 +53,9 @@ private:
 	// list of pending actor. We need this list to insert into it new actors created while iterating mActors (we can't add item on a list being iterated)
 	// after iterating mActors, add all pending actors inside mActors.
 	std::vector<class Actor*> mPendingActors;
-	// list of sprites
-	std::vector<class SpriteComponent*> mSprites;
 
+	std::vector<class Asteroid*> mAsteroids;
+
+	// Renderer
+	class Renderer* mRenderer;
 };
