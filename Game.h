@@ -27,10 +27,6 @@ public:
 
 	class Renderer* GetRenderer() const { return mRenderer; }
 
-	void AddAsteroid(class Asteroid* ast);
-	void RemoveAsteroid(class Asteroid* ast);
-	std::vector<class Asteroid*>& GetAsteroids() { return mAsteroids; }
-
 private:
 	// Helper function for the game loop. Main Game steps for each frame: Process Inputs, update the game world, generate any output
 	void ProcessInput();
@@ -53,9 +49,8 @@ private:
 	// list of pending actor. We need this list to insert into it new actors created while iterating mActors (we can't add item on a list being iterated)
 	// after iterating mActors, add all pending actors inside mActors.
 	std::vector<class Actor*> mPendingActors;
-
-	std::vector<class Asteroid*> mAsteroids;
-
 	// Renderer
 	class Renderer* mRenderer;
+	// Camera actor
+	class CameraActor* mCameraActor;
 };

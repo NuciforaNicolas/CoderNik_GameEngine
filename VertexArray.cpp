@@ -39,10 +39,10 @@ VertexArray::VertexArray(const float* verts, unsigned int numVerts,
 	// Specify size, tyoe and format of the attrribute
 	glVertexAttribPointer(
 		0,					// First attribute
-		3,					// Number of components. 3 in this case (3 float for each vertex)
+		3,					// Number of components. 3 in this case (3 float for position)
 		GL_FLOAT,			//The type of the components. Each vertex has 3 float
 		GL_FALSE,			// Only used for integer types
-		sizeof(float) * 8,	// Size of each vertex (3 float for vertex position and 2 float for UV position)
+		sizeof(float) * 8,	// Size of each vertex (3 float for vertex position, 3 floats for normal position and 2 float for UV position)
 		0					// Offset from start of vertex to this attribute (in this case, position of the vertex is the first attribute and don't need offset)
 	);
 

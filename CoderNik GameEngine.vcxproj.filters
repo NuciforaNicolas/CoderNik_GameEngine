@@ -22,6 +22,12 @@
     <Filter Include="Resource Files\Assets\Sprites">
       <UniqueIdentifier>{07c935c2-2e55-434f-b4bd-ceee95781c77}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Resource Files\Assets\Meshes">
+      <UniqueIdentifier>{8fe13288-78ca-4694-b813-29f847875daa}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Resource Files\Assets\Textures">
+      <UniqueIdentifier>{0df2432a-e94e-48be-8a60-a47b018936c1}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Main.cpp">
@@ -54,9 +60,6 @@
     <ClCompile Include="Shader.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Asteroid.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="Random.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -70,6 +73,15 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="Renderer.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="MeshComponent.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Cube.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="CameraActor.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -101,9 +113,6 @@
     <ClInclude Include="Shader.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Asteroid.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="Random.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -119,6 +128,15 @@
     <ClInclude Include="Renderer.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="MeshComponent.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Cube.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="CameraActor.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Image Include="Assets\Sprites\Asteroid.png">
@@ -126,6 +144,18 @@
     </Image>
     <Image Include="Assets\Sprites\Ship.png">
       <Filter>Resource Files\Assets\Sprites</Filter>
+    </Image>
+    <Image Include="Assets\Textures\Cube.png">
+      <Filter>Resource Files\Assets\Textures</Filter>
+    </Image>
+    <Image Include="Assets\Textures\Default.png">
+      <Filter>Resource Files\Assets\Textures</Filter>
+    </Image>
+    <Image Include="Assets\Textures\Plane.png">
+      <Filter>Resource Files\Assets\Textures</Filter>
+    </Image>
+    <Image Include="Assets\Textures\Sphere.png">
+      <Filter>Resource Files\Assets\Textures</Filter>
     </Image>
   </ItemGroup>
   <ItemGroup>
@@ -146,6 +176,21 @@
     </None>
     <None Include="Shaders\Transform.vert">
       <Filter>Resource Files\Shaders</Filter>
+    </None>
+    <None Include="Shaders\BasicMesh.frag">
+      <Filter>Resource Files\Shaders</Filter>
+    </None>
+    <None Include="Shaders\BasicMesh.vert">
+      <Filter>Resource Files\Shaders</Filter>
+    </None>
+    <None Include="Assets\Meshes\Cube.gpmesh">
+      <Filter>Resource Files\Assets\Meshes</Filter>
+    </None>
+    <None Include="Assets\Meshes\Sphere.gpmesh">
+      <Filter>Resource Files\Assets\Meshes</Filter>
+    </None>
+    <None Include="Assets\Meshes\Plane.gpmesh">
+      <Filter>Resource Files\Assets\Meshes</Filter>
     </None>
   </ItemGroup>
 </Project>

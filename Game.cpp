@@ -2,9 +2,10 @@
 #include <SDL.h>
 #include <algorithm>
 #include "Actor.h"
-#include "Asteroid.h"
 #include "Random.h"
-#include "Ship.h"
+#include "Cube.h"
+#include "CameraActor.h"
+#include "MeshComponent.h"
 
 Game::Game() : 
 	mWinHeight(0),
@@ -151,24 +152,26 @@ void Game::RemoveActor(Actor* actor) {
 }
 
 void Game::LoadData() {
-	Ship* ship = new Ship(this);
+	Actor* ac = new Actor(this);
+	ac->SetActorPosition(Vector3(200.f, 75.f, 0.f));
+	ac->SetActorScale(100.f);
+	Quaternion q(Vector3::UnitY, -Math::PiOver2);
+	q = Quaternion::Concatenate(q, Quaternion(Vector3::UnitZ, Math::Pi + Math::Pi / 4.f));
+	ac->SetActorRotation(q);
+	MeshComponent* mc = new MeshComponent(ac);
+	mc->SetMesh(mRenderer->GetMesh("Assets/Meshes/Cube.gpmesh"));
 
-	const int numAsteroids = 20;
-	for (int i = 0; i < numAsteroids; i++)
-		new Asteroid(this);
+	ac = new Actor(this);
+	ac->SetActorPosition(Vector3(200.f, -75.f, 0.f));
+	ac->SetActorScale(3.0f);
+	mc = new MeshComponent(ac);
+	mc->SetMesh(mRenderer->GetMesh("Assets/Meshes/Sphere.gpmesh"));
+
+	mCameraActor = new CameraActor(this);
+
 }
 
 void Game::UnloadData() {
 	// delete any residual actors
 	while (!mActors.empty()) delete mActors.back();
-}
-
-void Game::AddAsteroid(Asteroid* ast) {
-	mAsteroids.emplace_back(ast);
-}
-
-void Game::RemoveAsteroid(Asteroid* ast) {
-	auto iter = std::find(mAsteroids.begin(), mAsteroids.end(), ast);
-	if (iter != mAsteroids.end())
-		mAsteroids.erase(iter);
 }

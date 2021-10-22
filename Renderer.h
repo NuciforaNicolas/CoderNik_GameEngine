@@ -23,6 +23,10 @@ public:
 	// remove sprite
 	void RemoveSprite(class SpriteComponent* sprite);
 
+	// Add/Remove mesh components
+	void AddMeshComp(class MeshComponent* mesh);
+	void RemoveMeshComp(class MeshComponent* mesh);
+
 	// Get a texture from map
 	class Texture* GetTexture(const std::string& fileName);
 	// Get a mesh from map
@@ -43,6 +47,8 @@ private:
 
 	// All the sprite components drawn
 	std::vector<class SpriteComponent*> mSprites;
+	// All the mesh components drawn
+	std::vector<class MeshComponent*> mMeshComponents;
 
 	// Game
 	class Game* mGame;
@@ -51,9 +57,9 @@ private:
 	class Shader* mSpriteShader;
 	// Vertex array for sprites
 	class VertexArray* mSpriteVerts;
-
 	// Mesh shader
 	class Shader* mMeshShader;
+
 
 	// View/projection for 3D shaders
 	Matrix4 mView;
