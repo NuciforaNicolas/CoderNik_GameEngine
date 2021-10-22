@@ -7,8 +7,8 @@
 SpriteComponent::SpriteComponent(Actor* owner, int drawOrder) :
 	Component(owner),
 	mTexture(nullptr),
-	mWidth(100),
-	mHeight(100),
+	mWidth(0),
+	mHeight(0),
 	mDrawOrder(drawOrder){
 	// add itself to the sprite list
 	mOwner->GetGame()->GetRenderer()->AddSprite(this);

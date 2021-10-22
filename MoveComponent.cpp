@@ -22,14 +22,5 @@ void MoveComponent::Update(float deltatime) {
 		Vector3 position = mOwner->GetActorPosition();
 		position += mOwner->GetForward() * mForwardSpeed * deltatime;
 		mOwner->SetActorPosition(position);
-
-		// Screen wrapping for asteroids
-		auto screenX = mOwner->GetGame()->GetWidth() / 2;
-		auto screenY = mOwner->GetGame()->GetHeight() / 2;
-		if (position.x < -screenX) position.x = screenX;
-		else if (position.x > screenX) position.x = -screenX;
-		if (position.y < -screenY) position.y = screenY;
-		else if (position.y > screenY) position.y = -screenY;
-		mOwner->SetActorPosition(position);
 	}
 }

@@ -129,3 +129,34 @@ void Shader::SetMatrixUniform(const std::string matrixName, const Matrix4& matri
 		matrix.GetAsFloatPtr()	// Pointer to the matrix data
 	);
 }
+
+void Shader::SetVectorUniform(const std::string vectorName, const Vector3& vec) {
+	// Find the uniform variable by its name
+	GLuint uniformId;
+	// Check if the ID was already obtained. Otherwise, create new ID and cache it
+	if (mUniforms.find(vectorName) != mUniforms.end()) {
+		uniformId = mUniforms.at(vectorName);
+	}
+	else {
+		uniformId = glGetUniformLocation(mShaderProgram, vectorName.c_str());
+		mUniforms[vectorName] = uniformId;
+	}
+
+	// Send the vector data to the uniform
+	glUniform3fv(uniformId, 1, vec.GetAsFloatPtr());
+}
+
+void Shader::SetFloatUniform(const std::string floatName, const float& flt) {
+	// Find the uniform location by its name
+	GLuint uniformId;
+	if (mUniforms.find(floatName) != mUniforms.end()) {
+		uniformId = mUniforms.at(floatName);
+	}
+	else {
+		uniformId = glGetUniformLocation(mShaderProgram, floatName.c_str());
+		mUniforms[floatName] = uniformId;
+	}
+
+	// Send the float data to the uniform
+	glUniform1f(uniformId, flt);
+}

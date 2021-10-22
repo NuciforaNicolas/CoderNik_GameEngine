@@ -19,6 +19,8 @@ public:
 	const std::string& GetShaderName() const { return mShaderName; }
 	// Get object space bounding sphere radius
 	float GetRadius() const { return mRadius; }
+	// Get specular power
+	float GetSpecPower() const { return mSpecPower; }
 
 private:
 	// Textures associated with this mesh

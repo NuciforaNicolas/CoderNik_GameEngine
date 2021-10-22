@@ -156,6 +156,7 @@
     <ClCompile Include="Mesh.cpp" />
     <ClCompile Include="MeshComponent.cpp" />
     <ClCompile Include="MoveComponent.cpp" />
+    <ClCompile Include="PlaneActor.cpp" />
     <ClCompile Include="Random.cpp" />
     <ClCompile Include="Renderer.cpp" />
     <ClCompile Include="Shader.cpp" />
@@ -175,6 +176,7 @@
     <ClInclude Include="Mesh.h" />
     <ClInclude Include="MeshComponent.h" />
     <ClInclude Include="MoveComponent.h" />
+    <ClInclude Include="PlaneActor.h" />
     <ClInclude Include="Random.h" />
     <ClInclude Include="Renderer.h" />
     <ClInclude Include="Shader.h" />
@@ -185,6 +187,8 @@
   </ItemGroup>
   <ItemGroup>
     <Image Include="Assets\Sprites\Asteroid.png" />
+    <Image Include="Assets\Sprites\HealthBar.png" />
+    <Image Include="Assets\Sprites\Radar.png" />
     <Image Include="Assets\Sprites\Ship.png" />
     <Image Include="Assets\Textures\Cube.png" />
     <Image Include="Assets\Textures\Default.png" />
@@ -199,6 +203,8 @@
     <None Include="Shaders\Basic.vert" />
     <None Include="Shaders\BasicMesh.frag" />
     <None Include="Shaders\BasicMesh.vert" />
+    <None Include="Shaders\Phong.frag" />
+    <None Include="Shaders\Phong.vert" />
     <None Include="Shaders\Sprite.frag" />
     <None Include="Shaders\Sprite.vert" />
     <None Include="Shaders\Transform.vert" />

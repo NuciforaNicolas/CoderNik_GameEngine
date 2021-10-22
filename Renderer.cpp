@@ -108,7 +108,7 @@ void Renderer::Draw() {
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT); // This parameter clear the buffer with the specified color and Depth Buffer
 
 	// Draw meshes
-	// Enable depth buffer and disable alpha blending when draw meshes
+	// Enable depth buffer and disable alpha blending when draw meshes 
 	// Enable depth buffering
 	glEnable(GL_DEPTH_TEST);
 	// Disable alpha blending when using depth buffer
@@ -118,6 +118,8 @@ void Renderer::Draw() {
 	mMeshShader->SetActive();
 	// Update view-projection matrix (is necessary to account, for example, camera moving)
 	mMeshShader->SetMatrixUniform("uViewProj", mView * mProjection);
+	// Update lighting uniform
+	SetLightUniforms(mMeshShader);
 	for (auto mc : mMeshComponents)
 		mc->Draw(mMeshShader);
 
@@ -236,7 +238,7 @@ bool Renderer::LoadShaders()
 
 	// Create mesh shader
 	mMeshShader = new Shader();
-	if (!mMeshShader->Load("Shaders/BasicMesh.vert", "Shaders/BasicMesh.frag")) return false;
+	if (!mMeshShader->Load("Shaders/Phong.vert", "Shaders/Phong.frag")) return false;
 	mMeshShader->SetActive();
 	// Set the view-projection matrix
 	mView = Matrix4::CreateLookAt(
@@ -271,4 +273,18 @@ void Renderer::CreateSpriteVerts()
 	};
 
 	mSpriteVerts = new VertexArray(vertices, 4, indices, 6);
+}
+
+void Renderer::SetLightUniforms(Shader* shader) {
+	// Camera position is from inverted view
+	// Inverting camera matrix, allow us to get camera position from the first row using GetTranslation()
+	Matrix4 invView = mView;
+	invView.Invert();
+	shader->SetVectorUniform("uCameraPos", invView.GetTranslation());
+	// Ambient light
+	shader->SetVectorUniform("uAmbientLight", mAmbientLight);
+	// Directional light
+	shader->SetVectorUniform("uDirLight.mDirection", mDirectionalLight.mDirection);
+	shader->SetVectorUniform("uDirLight.mDiffuseColor", mDirectionalLight.mDiffuseColor);
+	shader->SetVectorUniform("uDirLight.mSpecularColor", mDirectionalLight.mSpecularColor);
 }

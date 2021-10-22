@@ -84,6 +84,9 @@
     <ClCompile Include="CameraActor.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="PlaneActor.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Game.h">
@@ -137,6 +140,9 @@
     <ClInclude Include="CameraActor.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="PlaneActor.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Image Include="Assets\Sprites\Asteroid.png">
@@ -156,6 +162,12 @@
     </Image>
     <Image Include="Assets\Textures\Sphere.png">
       <Filter>Resource Files\Assets\Textures</Filter>
+    </Image>
+    <Image Include="Assets\Sprites\HealthBar.png">
+      <Filter>Resource Files\Assets\Sprites</Filter>
+    </Image>
+    <Image Include="Assets\Sprites\Radar.png">
+      <Filter>Resource Files\Assets\Sprites</Filter>
     </Image>
   </ItemGroup>
   <ItemGroup>
@@ -191,6 +203,12 @@
     </None>
     <None Include="Assets\Meshes\Plane.gpmesh">
       <Filter>Resource Files\Assets\Meshes</Filter>
+    </None>
+    <None Include="Shaders\Phong.frag">
+      <Filter>Resource Files\Shaders</Filter>
+    </None>
+    <None Include="Shaders\Phong.vert">
+      <Filter>Resource Files\Shaders</Filter>
     </None>
   </ItemGroup>
 </Project>

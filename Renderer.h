@@ -3,6 +3,16 @@
 #include <unordered_map>
 #include "Math.h"
 
+// Struct for directional light (to pass as uniform to Phong.frag)
+struct DirectionaLight {
+	// Direction of light
+	Vector3 mDirection;
+	// Diffuse color
+	Vector3 mDiffuseColor;
+	// Specular color
+	Vector3 mSpecularColor;
+};
+
 class Renderer {
 public:
 	Renderer(class Game* game);
@@ -33,12 +43,16 @@ public:
 	class Mesh* GetMesh(const std::string& mesh);
 
 	void SetViewMatrix(const Matrix4& view) { mView = view; }
+	void SetAmbientLight(const Vector3& ambientLight) { mAmbientLight = ambientLight; }
+	DirectionaLight& GetDirectionalLight() { return mDirectionalLight; }
 
 private:
 	// Load sprite shader program and active it
 	bool LoadShaders();
 	// Create a quad shader
 	void CreateSpriteVerts();
+	// Set light uniforms
+	void SetLightUniforms(class Shader* shader);
 
 	// map of textures
 	std::unordered_map<std::string, class Texture*> mTextures;
@@ -67,6 +81,10 @@ private:
 	// Width/height of screen
 	float mScreenWidth;
 	float mScreenHeight;
+
+	// Light members
+	Vector3 mAmbientLight;
+	DirectionaLight mDirectionalLight;
 
 	// Window created by SDL
 	SDL_Window* mWindow;

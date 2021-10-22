@@ -18,6 +18,8 @@ public:
 	void SetActive();
 	// Set the uniform matrix
 	void SetMatrixUniform(const std::string matrixName, const Matrix4& matrix);
+	void SetVectorUniform(const std::string vectorName, const Vector3& vec);
+	void SetFloatUniform(const std::string floatName, const float& flt);
 
 private:
 	// support method. Tries to compile the specified shader program
