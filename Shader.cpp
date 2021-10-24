@@ -146,6 +146,22 @@ void Shader::SetVectorUniform(const std::string vectorName, const Vector3& vec) 
 	glUniform3fv(uniformId, 1, vec.GetAsFloatPtr());
 }
 
+template<typename T>
+void Shader::SetArrayUniform(const std::string arrayName, const T* arr, const unsigned int n) {
+	// Find the uniform location by name
+	GLuint uniformId;
+	if (mUniforms.find(arrayName) != mUniforms.end()) {
+		uniformId = mUniforms.at(arrayName);
+	}
+	else {
+		uniformId = glGetUniformLocation(mShaderProgram, arrayName.c_str());
+		mUniforms[arrayName] = uniformId;
+	}
+
+	// Send the array data to the uniform
+	glUniform1f(uniformId, n, arr);
+}
+
 void Shader::SetFloatUniform(const std::string floatName, const float& flt) {
 	// Find the uniform location by its name
 	GLuint uniformId;

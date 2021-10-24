@@ -22,7 +22,7 @@ bool Texture::Load(const std::string& fileName) {
 		SOIL_LOAD_AUTO		// Specify type of image. Use auto if any
 	);
 	if (!image) {
-		SDL_Log("Failed to load texture: %s", fileName.c_str());
+		SDL_Log("Failed to load texture %s: %s", fileName.c_str(), SOIL_last_result());
 		return false;
 	}
 	// Set color format. Check channels: RGB = 3; RGBA = 4

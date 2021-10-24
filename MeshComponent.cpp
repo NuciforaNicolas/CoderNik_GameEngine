@@ -1,20 +1,20 @@
 #include "MeshComponent.h"
 #include "Shader.h"
-#include "Mesh.h"
 #include "Actor.h"
 #include "Game.h"
 #include "Texture.h"
 #include "VertexArray.h"
+#include "Mesh.h"
 
 MeshComponent::MeshComponent(Actor* owner) :
 	Component(owner),
 	mMesh(nullptr),
 	mTextureIndex(0){
-	owner->GetGame()->GetRenderer()->AddMeshComp(this);
+	//owner->GetGame()->GetRenderer()->AddMeshComp(this);
 }
 
 MeshComponent::~MeshComponent(){
-	mOwner->GetGame()->GetRenderer()->RemoveMeshComp(this);
+	mOwner->GetGame()->GetRenderer()->RemoveMeshComp(mMesh->GetShaderName(), this);
 }
 
 void MeshComponent::Draw(Shader* shader) {
@@ -36,8 +36,5 @@ void MeshComponent::Draw(Shader* shader) {
 
 void MeshComponent::SetMesh(Mesh* mesh) {
 	mMesh = mesh;
-}
-
-void MeshComponent::SetTextureIndex(size_t index) {
-	mTextureIndex = index;
+	mOwner->GetGame()->GetRenderer()->AddMeshComp(mesh->GetShaderName(), this);
 }

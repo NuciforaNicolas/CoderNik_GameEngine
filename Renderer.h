@@ -13,6 +13,19 @@ struct DirectionaLight {
 	Vector3 mSpecularColor;
 };
 
+struct PointLight {
+	// Position of point light
+	Vector3 mPosition;
+	// Diffuse color
+	Vector3 mDiffuseColor;
+	// Specular color
+	Vector3 mSpecularColor;
+	// Specular power
+	float mSpecPower;
+	// Radius of influence
+	float mRadius;
+};
+
 class Renderer {
 public:
 	Renderer(class Game* game);
@@ -34,8 +47,8 @@ public:
 	void RemoveSprite(class SpriteComponent* sprite);
 
 	// Add/Remove mesh components
-	void AddMeshComp(class MeshComponent* mesh);
-	void RemoveMeshComp(class MeshComponent* mesh);
+	void AddMeshComp(std::string shader, class MeshComponent* mesh);
+	void RemoveMeshComp(std::string shader, class MeshComponent* mesh);
 
 	// Get a texture from map
 	class Texture* GetTexture(const std::string& fileName);
@@ -45,6 +58,7 @@ public:
 	void SetViewMatrix(const Matrix4& view) { mView = view; }
 	void SetAmbientLight(const Vector3& ambientLight) { mAmbientLight = ambientLight; }
 	DirectionaLight& GetDirectionalLight() { return mDirectionalLight; }
+	PointLight* GetPointLights() { return mPointLights; }
 
 private:
 	// Load sprite shader program and active it
@@ -62,17 +76,18 @@ private:
 	// All the sprite components drawn
 	std::vector<class SpriteComponent*> mSprites;
 	// All the mesh components drawn
-	std::vector<class MeshComponent*> mMeshComponents;
+	std::unordered_map<std::string, std::vector<class MeshComponent*>> mMeshComponents;
 
 	// Game
 	class Game* mGame;
 
 	// Sprite shader
-	class Shader* mSpriteShader;
+	//class Shader* mSpriteShader;
 	// Vertex array for sprites
 	class VertexArray* mSpriteVerts;
 	// Mesh shader
-	class Shader* mMeshShader;
+	std::unordered_map<std::string, class Shader*> mMeshShaders;
+	//class Shader* mMeshShader;
 
 
 	// View/projection for 3D shaders
@@ -85,6 +100,7 @@ private:
 	// Light members
 	Vector3 mAmbientLight;
 	DirectionaLight mDirectionalLight;
+	PointLight mPointLights[4];
 
 	// Window created by SDL
 	SDL_Window* mWindow;

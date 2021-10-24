@@ -1,5 +1,6 @@
 #include "VertexArray.h"
 #include <glew.h>
+
 VertexArray::VertexArray(const float* verts, unsigned int numVerts,
 	const unsigned int* indices, unsigned int numIndices) :
 	mNumIndices(numIndices),
@@ -11,7 +12,7 @@ VertexArray::VertexArray(const float* verts, unsigned int numVerts,
 
 	// Create vertex buffer and store its ID
 	glGenBuffers(1, &mVertexBuffer);
-	glBindBuffer(GL_ARRAY_BUFFER, mVertexArray); // GL_ARRAY_BUFFER specify that we want to use the buffer as a vertex buffer
+	glBindBuffer(GL_ARRAY_BUFFER, mVertexBuffer); // GL_ARRAY_BUFFER specify that we want to use the buffer as a vertex buffer
 
 	// Copy the vertex data passed into the VertexArray constructor into this vertex buffer
 	glBufferData(

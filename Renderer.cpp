@@ -7,11 +7,14 @@
 #include "VertexArray.h"
 #include "SpriteComponent.h"
 #include "MeshComponent.h"
+#include <filesystem>
+#include <iostream>
+#include <string>
+
+namespace fs = std::filesystem;
 
 Renderer::Renderer(Game* game) :
-	mGame(game),
-	mSpriteShader(nullptr),
-	mMeshShader(nullptr)
+	mGame(game)
 {}
 
 Renderer::~Renderer(){}
@@ -74,13 +77,13 @@ bool Renderer::Initialize(float screenWidth, float screenHeight) {
 }
 
 void Renderer::ShutDown() {
-	delete mSpriteVerts;
-	mSpriteShader->Unload();
-	delete mSpriteShader;
-	mMeshShader->Unload();
-	delete mMeshShader;
-	SDL_GL_DeleteContext(mContext);
-	SDL_DestroyWindow(mWindow);
+delete mSpriteVerts;
+for (auto shader : mMeshShaders) {
+	shader.second->Unload();
+	delete shader.second;
+}
+SDL_GL_DeleteContext(mContext);
+SDL_DestroyWindow(mWindow);
 }
 
 void Renderer::UnloadData() {
@@ -103,7 +106,7 @@ void Renderer::UnloadData() {
 
 void Renderer::Draw() {
 	// Set the clear color (equivalent to SDL_SetRendererDrawColor of SDL): Red: 0-1; Green: 0-1; Blue: 0-1; Alpha: 0-1
-	glClearColor(0.f, 0.f, 0.f, 1.0f);
+	glClearColor(0.f, 0.3f, .5f, 1.f);
 	// Clear the color buffer (equivalent to SDL_RenderClear of SDL) and Depth Buffer
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT); // This parameter clear the buffer with the specified color and Depth Buffer
 
@@ -114,14 +117,21 @@ void Renderer::Draw() {
 	// Disable alpha blending when using depth buffer
 	glDisable(GL_BLEND);
 
-	// Set the basic mesh shader active
-	mMeshShader->SetActive();
-	// Update view-projection matrix (is necessary to account, for example, camera moving)
-	mMeshShader->SetMatrixUniform("uViewProj", mView * mProjection);
-	// Update lighting uniform
-	SetLightUniforms(mMeshShader);
-	for (auto mc : mMeshComponents)
-		mc->Draw(mMeshShader);
+	for (auto shader : mMeshShaders) {
+		if (shader.first != "Sprite") {
+			// Set the basic mesh shader active
+			shader.second->SetActive();
+			// Update view-projection matrix (is necessary to account, for example, camera moving)
+			shader.second->SetMatrixUniform("uViewProj", mView * mProjection);
+			if (shader.first == "PhongMesh") {
+				SetLightUniforms(shader.second);
+			}
+			// Iterate and draw all mesh components grouped by shader type
+			for (auto mc : mMeshComponents[shader.first]) {
+				mc->Draw(shader.second);
+			}
+		}
+	}
 
 	// Draw sprites
 	// Enable alpha blending and disable depth buffer when drawing sprites
@@ -131,11 +141,11 @@ void Renderer::Draw() {
 	glBlendFuncSeparate(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA, GL_ONE, GL_ZERO);
 	// On each frime, active the vertex array object and shader before drawing any model (sprite in this case)
 	// Active vertex array object and shader
-	mSpriteShader->SetActive();
+	mMeshShaders["Sprite"]->SetActive();
 	mSpriteVerts->SetActive();
 	// Draw all sprites
 	for (auto sprite : mSprites)
-		sprite->Draw(mSpriteShader);
+		sprite->Draw(mMeshShaders["Sprite"]);
 
 	// Swap back and front buffer to render the scene (equivalent to SDL_RenderPresent of SDL)
 	SDL_GL_SwapWindow(mWindow);
@@ -165,14 +175,19 @@ void Renderer::RemoveSprite(SpriteComponent* sprite) {
 	mSprites.erase(iter);
 }
 
-void Renderer::AddMeshComp(MeshComponent* mesh) {
-	mMeshComponents.emplace_back(mesh);
+void Renderer::AddMeshComp(std::string shader, MeshComponent* mesh)
+{
+	mMeshComponents[shader].emplace_back(mesh);
 }
 
-void Renderer::RemoveMeshComp(MeshComponent* mesh) {
-	auto iter = std::find(mMeshComponents.begin(), mMeshComponents.end(), mesh);
-	if (iter != mMeshComponents.end())
-		mMeshComponents.erase(iter);
+void Renderer::RemoveMeshComp(std::string shader, MeshComponent* mesh)
+{
+	if (mMeshComponents.find(shader) != mMeshComponents.end()) {
+		auto it = std::find(mMeshComponents[shader].begin(), mMeshComponents[shader].end(), mesh);
+		if (it != mMeshComponents[shader].end()) {
+			mMeshComponents[shader].erase(it);
+		}
+	}
 }
 
 Texture* Renderer::GetTexture(const std::string& fileName) {
@@ -224,22 +239,20 @@ Mesh* Renderer::GetMesh(const std::string& fileName)
 
 bool Renderer::LoadShaders()
 {
-	// Create sprite shader
-	mSpriteShader = new Shader();
-	if (!mSpriteShader->Load("Shaders/Sprite.vert", "Shaders/Sprite.frag"))
-	{
-		return false;
+	// Load all shaders
+	std::string shadersPath(fs::current_path().string() + "\\Shaders");
+	std::string vertName = "";
+	std::string fragName = "";
+	for (auto it = fs::directory_iterator(shadersPath); it != fs::directory_iterator(); it++) {
+		std::string shadehName = it->path().stem().string();
+		// first is a frag, second is a vert (alphabetical order)
+		fragName = it->path().filename().string();
+		vertName = (++it)->path().filename().string();
+		Shader* sh = new Shader();
+		if (!sh->Load("Shaders/" + vertName, "Shaders/" + fragName)) return false;
+		mMeshShaders[shadehName] = sh;
 	}
-
-	mSpriteShader->SetActive();
-	// Set the view-projection matrix
-	Matrix4 viewProj = Matrix4::CreateSimpleViewProj(mScreenWidth, mScreenHeight);
-	mSpriteShader->SetMatrixUniform("uViewProj", viewProj);
-
-	// Create mesh shader
-	mMeshShader = new Shader();
-	if (!mMeshShader->Load("Shaders/Phong.vert", "Shaders/Phong.frag")) return false;
-	mMeshShader->SetActive();
+	
 	// Set the view-projection matrix
 	mView = Matrix4::CreateLookAt(
 		Vector3::Zero,	// Camera position (eye)
@@ -253,8 +266,20 @@ bool Renderer::LoadShaders()
 		25.f,					// near plane
 		10000.f					// far plane
 	);
-	mMeshShader->SetMatrixUniform("uViewProj", mView * mProjection);
 
+	// Activate all shaders
+	for (auto shader : mMeshShaders) {
+		if (shader.first == "Sprite") {
+			shader.second->SetActive();
+			// Set the view-projection matrix
+			Matrix4 viewProj = Matrix4::CreateSimpleViewProj(mScreenWidth, mScreenHeight);
+			shader.second->SetMatrixUniform("uViewProj", viewProj);
+		}
+		else {
+			shader.second->SetActive();
+			shader.second->SetMatrixUniform("uViewProj", mView * mProjection);
+		}
+	}
 	return true;
 }
 
@@ -287,4 +312,13 @@ void Renderer::SetLightUniforms(Shader* shader) {
 	shader->SetVectorUniform("uDirLight.mDirection", mDirectionalLight.mDirection);
 	shader->SetVectorUniform("uDirLight.mDiffuseColor", mDirectionalLight.mDiffuseColor);
 	shader->SetVectorUniform("uDirLight.mSpecularColor", mDirectionalLight.mSpecularColor);
+	// Point lights
+	const unsigned int numPointLights = 4;
+	for (unsigned int i = 0; i < numPointLights; i++) {
+		shader->SetVectorUniform("uPointLights[" + std::to_string(i) + "].mPosition", mPointLights[i].mPosition);
+		shader->SetVectorUniform("uPointLights[" + std::to_string(i) + "].mDiffuseColor", mPointLights[i].mDiffuseColor);
+		shader->SetVectorUniform("uPointLights[" + std::to_string(i) + "].mSpecularColor", mPointLights[i].mSpecularColor);
+		shader->SetFloatUniform("uPointLights[" + std::to_string(i) + "].mSpecPower", mPointLights[i].mSpecPower);
+		shader->SetFloatUniform("uPointLights[" + std::to_string(i) + "].mRadius", mPointLights[i].mRadius);
+	}
 }
